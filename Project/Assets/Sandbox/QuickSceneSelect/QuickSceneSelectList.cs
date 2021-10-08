@@ -72,14 +72,17 @@ namespace Sandbox.QuickSceneSelect
             if (string.IsNullOrWhiteSpace(selectedScene))
                 return;
 
-            SceneManager.UnloadScene(selectedScene);
-            selectedScene = "";
+            var unloadSceneTask = SceneManager.UnloadSceneAsync(selectedScene);
+            unloadSceneTask.completed += (AsyncOperation obj) =>
+            {
+                selectedScene = "";
 
-            sceneSelectMenuContainer.SetActive(true);
-            sceneEventSystem.SetActive(true);
-            toggleEnableBackNav.gameObject.SetActive(true);
+                sceneSelectMenuContainer.SetActive(true);
+                sceneEventSystem.SetActive(true);
+                toggleEnableBackNav.gameObject.SetActive(true);
 
-            sceneBackBtn.SetActive(false);
+                sceneBackBtn.SetActive(false);
+            };
         }
 
         public void LoadScene(string scenePath)
@@ -87,17 +90,14 @@ namespace Sandbox.QuickSceneSelect
             if (string.IsNullOrWhiteSpace(selectedScene) == false)
                 return;
 
-            LoadSceneMode mode = toggleEnableBackNav.isOn ? LoadSceneMode.Additive : LoadSceneMode.Single;
-
-            SceneManager.LoadScene(scenePath, mode);
-            selectedScene = scenePath;
-
             sceneSelectMenuContainer.SetActive(false);
             sceneEventSystem.SetActive(false);
             toggleEnableBackNav.gameObject.SetActive(false);
-
-
             sceneBackBtn.SetActive(true);
+
+            LoadSceneMode mode = toggleEnableBackNav.isOn ? LoadSceneMode.Additive : LoadSceneMode.Single;
+            SceneManager.LoadScene(scenePath, mode);
+            selectedScene = scenePath;
         }
     }
 }
